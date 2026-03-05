@@ -13,6 +13,7 @@ class AuthController extends Controller
     // وظيفة تسجيل مستخدم جديد (Customer بالوضع الافتراضي)
     public function register(Request $request)
     {
+        
         // 1. التحقق من البيانات المدخلة (Validation)
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -46,21 +47,22 @@ class AuthController extends Controller
     }
 
     // وظيفة تسجيل الدخول
-    public function login(Request $request)
-    {
-        $user = User::where('email', $request->email)->first();
+   public function login(Request $request)
+{
+    // التأكد من وجود المستخدم بالبريد الإلكتروني
+    $user = User::where('email', $request->email)->first();
 
-        // التأكد من وجود المستخدم وصحة الباسورد
-        if (!$user || !Hash::make($request->password, $user->password)) {
-            return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user,
-        ]);
+    // التحقق: هل المستخدم موجود؟ وهل كلمة المرور (بعد فك تشفيرها) مطابقة؟
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);
     }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'user' => $user,
+    ]);
+}
 }
