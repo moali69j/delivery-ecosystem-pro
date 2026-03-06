@@ -9,14 +9,12 @@ use Illuminate\Support\Facades\Validator;
 
 class ShopController extends Controller
 {
-    // 1. عرض كل المحلات
     public function index()
     {
         $shops = Shop::where('is_open', true)->get();
         return response()->json($shops);
     }
 
-    // 2. دالة إنشاء المحل (التي كانت ناقصة)
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -30,7 +28,6 @@ class ShopController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // إنشاء المحل وربطه بالمستخدم المسجل دخوله حالياً
         $shop = Shop::create([
             'user_id' => auth()->id(), 
             'name' => $request->name,
